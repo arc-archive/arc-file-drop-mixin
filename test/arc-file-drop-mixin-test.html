@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>arc-file-drop-mixin test</title>
+  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="test-element.html">
+</head>
+<body>
+  <test-fixture id="Basic">
+    <template>
+      <test-element></test-element>
+    </template>
+  </test-fixture>
+
+  <script>
+  suite('arc-file-drop-mixin', () => {
+    function createEventObject(file) {
+      const e = new CustomEvent('event', {cancelable: true});
+      if (file) {
+        e.dataTransfer = {
+          files: [file]
+        };
+      }
+      return e;
+    }
+
+    let element;
+    let file;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    suiteSetup(() => {
+      file = new Blob(['{}'], {type: 'application/json'});
+    });
+
+    test('Sets dragging on drag enter', () => {
+      element._onDragEnter(createEventObject());
+      assert.isTrue(element.dragging);
+    });
+
+    test('drag enter cancels the event', () => {
+      const e = createEventObject();
+      element._onDragEnter(e);
+      assert.isTrue(e.defaultPrevented);
+    });
+
+    test('Removes dragging on drag leave', () => {
+      element._onDragLeave(createEventObject());
+      assert.isFalse(element.dragging);
+    });
+
+    test('drag leave cancels the event', () => {
+      const e = createEventObject();
+      element._onDragLeave(e);
+      assert.isTrue(e.defaultPrevented);
+    });
+
+    test('drag over cancels the event', () => {
+      const e = createEventObject();
+      element._onDragOver(e);
+      assert.isTrue(e.defaultPrevented);
+    });
+
+    test('drop cancels the event', () => {
+      const e = createEventObject(file);
+      element._onDrop(e);
+      assert.isTrue(e.defaultPrevented);
+    });
+
+    test('Dispatches import-process-file event', () => {
+      const e = createEventObject(file);
+      const spy = sinon.spy();
+      element.addEventListener('import-process-file', spy);
+      element._onDrop(e);
+      assert.isTrue(spy.calledOnce);
+    });
+
+    test('Dispatches process-error event when import not handled', () => {
+      const e = createEventObject(file);
+      const spy = sinon.spy();
+      element.addEventListener('process-error', spy);
+      element._onDrop(e);
+      assert.isTrue(spy.calledOnce);
+    });
+
+    test('Do not dispatches process-error event when import handled', () => {
+      const e = createEventObject(file);
+      const spy = sinon.spy();
+      element.addEventListener('process-error', spy);
+      element.addEventListener('import-process-file', (e) => {
+        e.preventDefault();
+        e.detail.result = Promise.resolve();
+      });
+      element._onDrop(e);
+      assert.isFalse(spy.called);
+    });
+
+    test('Dispatches process-error when promise error', (done) => {
+      const e = createEventObject(file);
+      const spy = sinon.spy();
+      element.addEventListener('process-error', spy);
+      element.addEventListener('import-process-file', (e) => {
+        e.preventDefault();
+        e.detail.result = Promise.reject(new Error('test'));
+      });
+      element._onDrop(e);
+      setTimeout(() => {
+        assert.isTrue(spy.calledOnce);
+        done();
+      });
+    });
+  });
+  </script>
+</body>
+</html>

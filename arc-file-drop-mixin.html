@@ -1,0 +1,171 @@
+<!--
+@license
+Copyright 2018 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/lib/utils/mixin.html">
+<script>
+(function(global) {
+'use strict';
+if (!global.ArcComponents) {
+  /**
+   * @namespace ArcComponents
+   */
+  global.ArcComponents = {};
+}
+/**
+ * A mixin with common function used to drag and drop file import.
+ *
+ * Contains methods to enable UI to react on drop events.
+ *
+ * @polymer
+ * @mixinFunction
+ * @memberof ArcComponents
+ */
+global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
+  /**
+   * @polymer
+   * @mixinClass
+   */
+  class ArcFileDropMixinImpl extends base {
+    constructor() {
+      super();
+      this._onDragEnter = this._onDragEnter.bind(this);
+      this._onDragLeave = this._onDragLeave.bind(this);
+      this._onDragOver = this._onDragOver.bind(this);
+      this._onDrop = this._onDrop.bind(this);
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      this.addEventListener('dragenter', this._onDragEnter);
+      this.addEventListener('dragleave', this._onDragLeave);
+      this.addEventListener('dragover', this._onDragOver);
+      this.addEventListener('drop', this._onDrop);
+    }
+
+    static get properties() {
+      return {
+        /**
+         * True when file is dragged over the element.
+         */
+        dragging: {
+          type: Boolean,
+          readOnly: true,
+          reflectToAttribute: true
+        }
+      };
+    }
+
+    _onDragEnter(e) {
+      this._cancelEvent(e);
+      this._setDragging(true);
+    }
+
+    _onDragLeave(e) {
+      this._cancelEvent(e);
+      this._setDragging(false);
+    }
+
+    _onDragOver(e) {
+      this._cancelEvent(e);
+    }
+
+    _onDrop(e) {
+      this._cancelEvent(e);
+      this._setDragging(false);
+      const files = e.dataTransfer.files;
+      if (!files || !files.length) {
+        return;
+      }
+      this._processEntries(files);
+    }
+
+    _cancelEvent(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    /**
+     * Dispatches `api-process-file` if the file is of a type of
+     * `application/zip` or `application/yaml`. Dispatches `import-process-file`
+     * event in other cases.
+     *
+     * When handling json file it reads the file and checks if file is
+     * OAS/swagger file.
+     *
+     * @param {FileList} files Dropped files list
+     */
+    _processEntries(files) {
+      const file = files[0];
+      if (file.type === 'application/zip' || file.type === 'application/yaml') {
+        // possible API file
+        this._notifyApiParser(file);
+        return;
+      }
+      const e = this._fire('import-process-file', {
+        file
+      });
+      if (!e.detail.result) {
+        this._fire('process-error', {
+          message: 'Import intent not handled by the application.'
+        });
+        return;
+      }
+      e.detail.result.catch((cause) => {
+        this._fire('process-error', {
+          message: cause.message
+        });
+      });
+    }
+    /**
+     * Dispatches `api-process-file` to parse API data.
+     * @param {File} file User file.
+     * @return {Promise}
+     */
+    _notifyApiParser(file) {
+      const e = this._fire('api-process-file', {
+        file
+      });
+      if (!e.defaultPrevented) {
+        this._fire('process-error', {
+          message: 'API processor not available'
+        });
+        return;
+      }
+      return e.detail.result
+      .then((api) => {
+        this._fire('api-data-ready', {
+          api
+        });
+      });
+    }
+    /**
+     * Dispatches custom event and returns it.
+     * @param {String} type Event type
+     * @param {Object} detail Event detail object
+     * @return {CustomEvent}
+     */
+    _fire(type, detail) {
+      const e = new CustomEvent(type, {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail
+      });
+      this.dispatchEvent(e);
+      return e;
+    }
+  }
+  return ArcFileDropMixinImpl;
+});
+})(window);
+</script>
+</dom-module>
