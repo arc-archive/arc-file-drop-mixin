@@ -120,8 +120,14 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
         return;
       }
       e.detail.result.catch((cause) => {
+        let message;
+        if (typeof cause === 'string') {
+          message = cause;
+        } else {
+          message = cause.message;
+        }
         this._fire('process-error', {
-          message: cause.message
+          message
         });
       });
     }
