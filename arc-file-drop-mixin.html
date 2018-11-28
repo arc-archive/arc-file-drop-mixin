@@ -147,10 +147,8 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
         return;
       }
       return e.detail.result
-      .then((api) => {
-        this._fire('api-data-ready', {
-          api
-        });
+      .then((result) => {
+        this._fire('api-data-ready', result);
       });
     }
     /**
