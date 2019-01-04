@@ -102,6 +102,7 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
      * OAS/swagger file.
      *
      * @param {FileList} files Dropped files list
+     * @return {Promise}
      */
     _processEntries(files) {
       const file = files[0];
@@ -111,19 +112,19 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
       ];
       if (apiTypes.indexOf(file.type) !== -1) {
         // probably API file
-        this._notifyApiParser(file);
-        return;
+        return this._notifyApiParser(file);
       }
       const e = this._fire('import-process-file', {
         file
       });
       if (!e.detail.result) {
+        const msg = 'Import intent not handled by the application';
         this._fire('process-error', {
-          message: 'Import intent not handled by the application.'
+          message: msg
         });
-        return;
+        return Promise.reject(new Error(msg));
       }
-      e.detail.result.catch((cause) => {
+      return e.detail.result.catch((cause) => {
         let message;
         if (typeof cause === 'string') {
           message = cause;
@@ -145,10 +146,11 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
         file
       });
       if (!e.defaultPrevented) {
+        const msg = 'API processor not available';
         this._fire('process-error', {
-          message: 'API processor not available'
+          message: msg
         });
-        return;
+        return Promise.reject(new Error(msg));
       }
       return e.detail.result
       .then((result) => {
