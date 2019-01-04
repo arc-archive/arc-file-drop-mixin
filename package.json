@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/arc-file-drop-mixin",
   "description": "A mixin with common function used to drag and drop file import",
-  "version": "2.0.0-preview",
+  "version": "2.0.0",
   "license": "Apache-2.0",
   "main": "arc-file-drop-mixin.html",
   "authors": [
@@ -9,7 +9,7 @@
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.1.1"
+    "@polymer/gen-typescript-declarations": "^1.6.0"
   },
   "private": false,
   "scripts": {
