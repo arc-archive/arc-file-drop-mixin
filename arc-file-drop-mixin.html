@@ -102,26 +102,37 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
      * OAS/swagger file.
      *
      * @param {FileList} files Dropped files list
+     * @return {Promise}
      */
     _processEntries(files) {
       const file = files[0];
-      if (file.type === 'application/zip' || file.type === 'application/yaml') {
-        // possible API file
-        this._notifyApiParser(file);
-        return;
+      const apiTypes = [
+        'application/zip', 'application/yaml', 'application/x-yaml',
+        'application/raml', 'application/x-raml'
+      ];
+      if (apiTypes.indexOf(file.type) !== -1) {
+        // probably API file
+        return this._notifyApiParser(file);
       }
       const e = this._fire('import-process-file', {
         file
       });
       if (!e.detail.result) {
+        const msg = 'Import intent not handled by the application';
         this._fire('process-error', {
-          message: 'Import intent not handled by the application.'
+          message: msg
         });
-        return;
+        return Promise.reject(new Error(msg));
       }
-      e.detail.result.catch((cause) => {
+      return e.detail.result.catch((cause) => {
+        let message;
+        if (typeof cause === 'string') {
+          message = cause;
+        } else {
+          message = cause.message;
+        }
         this._fire('process-error', {
-          message: cause.message
+          message
         });
       });
     }
@@ -135,16 +146,15 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
         file
       });
       if (!e.defaultPrevented) {
+        const msg = 'API processor not available';
         this._fire('process-error', {
-          message: 'API processor not available'
+          message: msg
         });
-        return;
+        return Promise.reject(new Error(msg));
       }
       return e.detail.result
-      .then((api) => {
-        this._fire('api-data-ready', {
-          api
-        });
+      .then((result) => {
+        this._fire('api-data-ready', result);
       });
     }
     /**
