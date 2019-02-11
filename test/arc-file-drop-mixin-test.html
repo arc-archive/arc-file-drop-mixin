@@ -22,6 +22,9 @@
       e.dataTransfer = {};
       if (file) {
         e.dataTransfer.files = [file];
+        e.dataTransfer.types = ['Files'];
+      } else {
+        e.dataTransfer.types = [];
       }
       return e;
     }
@@ -37,37 +40,61 @@
     });
 
     test('Sets dragging on drag enter', () => {
-      element._onDragEnter(createEventObject());
+      const e = createEventObject(file);
+      element._onDragEnter(e);
       assert.isTrue(element.dragging);
     });
 
-    test('drag enter cancels the event', () => {
+    test('Won\'t set dragging when no files', () => {
       const e = createEventObject();
+      element._onDragEnter(e);
+      assert.isUndefined(element.dragging);
+    });
+
+    test('drag enter cancels the event', () => {
+      const e = createEventObject(file);
       element._onDragEnter(e);
       assert.isTrue(e.defaultPrevented);
     });
 
     test('Removes dragging on drag leave', () => {
-      element._onDragLeave(createEventObject());
+      element._onDragLeave(createEventObject(file));
       assert.isFalse(element.dragging);
     });
 
+    test('Ignores dragleave event when no files', () => {
+      element._onDragLeave(createEventObject());
+      assert.isUndefined(element.dragging);
+    });
+
     test('drag leave cancels the event', () => {
-      const e = createEventObject();
+      const e = createEventObject(file);
       element._onDragLeave(e);
       assert.isTrue(e.defaultPrevented);
     });
 
     test('drag over cancels the event', () => {
-      const e = createEventObject();
+      const e = createEventObject(file);
       element._onDragOver(e);
       assert.isTrue(e.defaultPrevented);
+    });
+
+    test('Ignores drag over when no files', () => {
+      const e = createEventObject();
+      element._onDragOver(e);
+      assert.isFalse(e.defaultPrevented);
     });
 
     test('drop cancels the event', () => {
       const e = createEventObject(file);
       element._onDrop(e);
       assert.isTrue(e.defaultPrevented);
+    });
+
+    test('Ignores drop when no files', () => {
+      const e = createEventObject();
+      element._onDrop(e);
+      assert.isFalse(e.defaultPrevented);
     });
 
     test('Ignores the event when there\'s no file', () => {

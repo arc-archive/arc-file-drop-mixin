@@ -8,6 +8,10 @@
  *   arc-file-drop-mixin.html
  */
 
+
+// tslint:disable:variable-name Describing an API that's defined elsewhere.
+// tslint:disable:no-any describes the API as best we are able today
+
 /// <reference path="../polymer/types/lib/utils/mixin.d.ts" />
 
 declare namespace ArcComponents {
@@ -47,7 +51,7 @@ declare namespace ArcComponents {
      *
      * @param files Dropped files list
      */
-    _processEntries(files: FileList|null): void;
+    _processEntries(files: FileList|null): Promise<any>|null;
 
     /**
      * Dispatches `api-process-file` to parse API data.

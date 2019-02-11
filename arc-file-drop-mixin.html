@@ -66,20 +66,36 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
     }
 
     _onDragEnter(e) {
+      const types = e.dataTransfer.types;
+      if (types.indexOf('Files') === -1) {
+        return;
+      }
       this._cancelEvent(e);
       this._setDragging(true);
     }
 
     _onDragLeave(e) {
+      const types = e.dataTransfer.types;
+      if (types.indexOf('Files') === -1) {
+        return;
+      }
       this._cancelEvent(e);
       this._setDragging(false);
     }
 
     _onDragOver(e) {
+      const types = e.dataTransfer.types;
+      if (types.indexOf('Files') === -1) {
+        return;
+      }
       this._cancelEvent(e);
     }
 
     _onDrop(e) {
+      const types = e.dataTransfer.types;
+      if (types.indexOf('Files') === -1) {
+        return;
+      }
       this._cancelEvent(e);
       this._setDragging(false);
       const files = e.dataTransfer.files;
