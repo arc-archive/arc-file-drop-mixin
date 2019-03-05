@@ -1,4 +1,4 @@
-<!--
+/**
 @license
 Copyright 2018 The Advanced REST client authors <arc@mulesoft.com>
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -10,17 +10,8 @@ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
--->
-<link rel="import" href="../polymer/lib/utils/mixin.html">
-<script>
-(function(global) {
-'use strict';
-if (!global.ArcComponents) {
-  /**
-   * @namespace ArcComponents
-   */
-  global.ArcComponents = {};
-}
+*/
+import {dedupingMixin} from '@polymer/polymer/lib/utils/mixin.js';
 /**
  * A mixin with common function used to drag and drop file import.
  *
@@ -30,7 +21,7 @@ if (!global.ArcComponents) {
  * @mixinFunction
  * @memberof ArcComponents
  */
-global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
+export const ArcFileDropMixin = dedupingMixin((base) => {
   /**
    * @polymer
    * @mixinClass
@@ -192,6 +183,3 @@ global.ArcComponents.ArcFileDropMixin = Polymer.dedupingMixin((base) => {
   }
   return ArcFileDropMixinImpl;
 });
-})(window);
-</script>
-</dom-module>

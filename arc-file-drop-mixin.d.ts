@@ -5,14 +5,16 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   arc-file-drop-mixin.html
+ *   arc-file-drop-mixin.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
 
-/// <reference path="../polymer/types/lib/utils/mixin.d.ts" />
+import {dedupingMixin} from '@polymer/polymer/lib/utils/mixin.js';
+
+export {ArcFileDropMixin};
 
 declare namespace ArcComponents {
 
@@ -69,3 +71,5 @@ declare namespace ArcComponents {
     _fire(type: String|null, detail: object|null): CustomEvent|null;
   }
 }
+
+export {ArcFileDropMixinConstructor};
