@@ -1,24 +1,19 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-  <title>arc-file-drop-mixin test</title>
-  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
-  <script src="../../web-component-tester/browser.js"></script>
-  <link rel="import" href="test-element.html">
-</head>
-<body>
-  <test-fixture id="Basic">
-    <template>
-      <test-element></test-element>
-    </template>
-  </test-fixture>
+import { fixture, assert, html } from '@open-wc/testing';
+import * as sinon from 'sinon/pkg/sinon-esm.js';
+import './test-element.js';
 
-  <script>
-  suite('arc-file-drop-mixin', () => {
+describe('ArcFileDropMixin', function() {
+  async function basicFixture() {
+    return await fixture(
+      html`
+        <test-element></test-element>
+      `
+    );
+  }
+
+  describe('Basics', () => {
     function createEventObject(file) {
-      const e = new CustomEvent('event', {cancelable: true});
+      const e = new CustomEvent('event', { cancelable: true });
       e.dataTransfer = {};
       if (file) {
         e.dataTransfer.files = [file];
@@ -31,80 +26,80 @@
 
     let element;
     let file;
-    setup(() => {
-      element = fixture('Basic');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    suiteSetup(() => {
-      file = new Blob(['{}'], {type: 'application/json'});
+    before(() => {
+      file = new Blob(['{}'], { type: 'application/json' });
     });
 
-    test('Sets dragging on drag enter', () => {
+    it('Sets dragging on drag enter', () => {
       const e = createEventObject(file);
       element._onDragEnter(e);
       assert.isTrue(element.dragging);
     });
 
-    test('Won\'t set dragging when no files', () => {
+    it("Won't set dragging when no files", () => {
       const e = createEventObject();
       element._onDragEnter(e);
       assert.isUndefined(element.dragging);
     });
 
-    test('drag enter cancels the event', () => {
+    it('drag enter cancels the event', () => {
       const e = createEventObject(file);
       element._onDragEnter(e);
       assert.isTrue(e.defaultPrevented);
     });
 
-    test('Removes dragging on drag leave', () => {
+    it('Removes dragging on drag leave', () => {
       element._onDragLeave(createEventObject(file));
       assert.isFalse(element.dragging);
     });
 
-    test('Ignores dragleave event when no files', () => {
+    it('Ignores dragleave event when no files', () => {
       element._onDragLeave(createEventObject());
       assert.isUndefined(element.dragging);
     });
 
-    test('drag leave cancels the event', () => {
+    it('drag leave cancels the event', () => {
       const e = createEventObject(file);
       element._onDragLeave(e);
       assert.isTrue(e.defaultPrevented);
     });
 
-    test('drag over cancels the event', () => {
+    it('drag over cancels the event', () => {
       const e = createEventObject(file);
       element._onDragOver(e);
       assert.isTrue(e.defaultPrevented);
     });
 
-    test('Ignores drag over when no files', () => {
+    it('Ignores drag over when no files', () => {
       const e = createEventObject();
       element._onDragOver(e);
       assert.isFalse(e.defaultPrevented);
     });
 
-    test('drop cancels the event', () => {
+    it('drop cancels the event', () => {
       const e = createEventObject(file);
       element._onDrop(e);
       assert.isTrue(e.defaultPrevented);
     });
 
-    test('Ignores drop when no files', () => {
+    it('Ignores drop when no files', () => {
       const e = createEventObject();
       element._onDrop(e);
       assert.isFalse(e.defaultPrevented);
     });
 
-    test('Ignores the event when there\'s no file', () => {
+    it("Ignores the event when there's no file", () => {
       const e = createEventObject();
       const spy = sinon.spy(element, '_processEntries');
       element._onDrop(e);
       assert.isFalse(spy.called);
     });
 
-    test('Dispatches import-process-file event', () => {
+    it('Dispatches import-process-file event', () => {
       const e = createEventObject(file);
       const spy = sinon.spy();
       element.addEventListener('import-process-file', spy);
@@ -112,7 +107,7 @@
       assert.isTrue(spy.calledOnce);
     });
 
-    test('Dispatches process-error event when import not handled', () => {
+    it('Dispatches process-error event when import not handled', () => {
       const e = createEventObject(file);
       const spy = sinon.spy();
       element.addEventListener('process-error', spy);
@@ -120,7 +115,7 @@
       assert.isTrue(spy.calledOnce);
     });
 
-    test('Do not dispatches process-error event when import handled', () => {
+    it('Do not dispatches process-error event when import handled', () => {
       const e = createEventObject(file);
       const spy = sinon.spy();
       element.addEventListener('process-error', spy);
@@ -132,7 +127,7 @@
       assert.isFalse(spy.called);
     });
 
-    test('Dispatches process-error when promise error', (done) => {
+    it('Dispatches process-error when promise error', (done) => {
       const e = createEventObject(file);
       const spy = sinon.spy();
       element.addEventListener('process-error', spy);
@@ -148,12 +143,12 @@
     });
   });
 
-  suite('_notifyApiParser()', () => {
+  describe('_notifyApiParser()', () => {
     let element;
     let file;
-    setup(() => {
-      element = fixture('Basic');
-      file = new Blob(['{}'], {type: 'application/json'});
+    beforeEach(async () => {
+      element = await basicFixture();
+      file = new Blob(['{}'], { type: 'application/json' });
     });
 
     function handler(e) {
@@ -161,7 +156,7 @@
       e.detail.result = Promise.resolve('test-value');
     }
 
-    test('Calls _fire() with arguments', () => {
+    it('Calls _fire() with arguments', () => {
       const spy = sinon.spy(element, '_fire');
       element.addEventListener('api-process-file', handler);
       element._notifyApiParser(file);
@@ -171,7 +166,7 @@
       assert.typeOf(spy.args[0][1].file, 'blob', 'Second argument is set');
     });
 
-    test('Returns a promise', () => {
+    it('Returns a promise', () => {
       element.addEventListener('api-process-file', handler);
       const result = element._notifyApiParser(file);
       element.removeEventListener('api-process-file', handler);
@@ -179,41 +174,40 @@
       return result;
     });
 
-    test('Disaptches api-data-ready when finished', () => {
+    it('Disaptches api-data-ready when finished', () => {
       const spy = sinon.spy();
       element.addEventListener('api-data-ready', spy);
       element.addEventListener('api-process-file', handler);
-      return element._notifyApiParser(file)
-      .then(() => {
-        element.removeEventListener('api-process-file', handler);
-        assert.isTrue(spy.called, 'Event dispatched');
-        assert.equal(spy.args[0][0].detail, 'test-value');
-      })
-      .catch((cause) => {
-        element.removeEventListener('api-process-file', handler);
-        throw cause;
-      });
+      return element
+        ._notifyApiParser(file)
+        .then(() => {
+          element.removeEventListener('api-process-file', handler);
+          assert.isTrue(spy.called, 'Event dispatched');
+          assert.equal(spy.args[0][0].detail, 'test-value');
+        })
+        .catch((cause) => {
+          element.removeEventListener('api-process-file', handler);
+          throw cause;
+        });
     });
 
-    test('Rejects the promise when event not handled', () => {
-      return element._notifyApiParser(file)
-      .catch((cause) => {
+    it('Rejects the promise when event not handled', () => {
+      return element._notifyApiParser(file).catch((cause) => {
         assert.equal(cause.message, 'API processor not available');
       });
     });
 
-    test('Disaptches "process-error" when event not handled', () => {
+    it('Disaptches "process-error" when event not handled', () => {
       const spy = sinon.spy();
       element.addEventListener('process-error', spy);
-      return element._notifyApiParser(file)
-      .catch(() => {
+      return element._notifyApiParser(file).catch(() => {
         assert.isTrue(spy.called, 'Event dispatched');
         assert.equal(spy.args[0][0].detail.message, 'API processor not available');
       });
     });
   });
 
-  suite('_processEntries()', () => {
+  describe('_processEntries()', () => {
     let element;
     let files;
     const acceptedType = 'application/json';
@@ -228,36 +222,33 @@
       e.detail.result = Promise.resolve('test-value');
     }
 
-    setup(() => {
-      element = fixture('Basic');
+    beforeEach(async () => {
+      element = await basicFixture();
       element.addEventListener('api-process-file', apiHandler);
     });
 
-    teardown(() => {
+    afterEach(() => {
       element.removeEventListener('api-process-file', apiHandler);
     });
 
-    [
-      'application/zip', 'application/yaml', 'application/x-yaml',
-      'application/raml', 'application/x-raml'
-    ].forEach((item) => {
-      test('Calls _notifyApiParser() when type is' + item, () => {
-        const spy = sinon.spy(element, '_notifyApiParser');
-        files = [new Blob(['***'], {type: item})];
-        return element._processEntries(files)
-        .then(() => {
-          assert.isTrue(spy.called);
-          assert.isTrue(spy.args[0][0] === files[0]);
+    ['application/zip', 'application/yaml', 'application/x-yaml', 'application/raml', 'application/x-raml'].forEach(
+      (item) => {
+        it('Calls _notifyApiParser() when type is' + item, () => {
+          const spy = sinon.spy(element, '_notifyApiParser');
+          files = [new Blob(['***'], { type: item })];
+          return element._processEntries(files).then(() => {
+            assert.isTrue(spy.called);
+            assert.isTrue(spy.args[0][0] === files[0]);
+          });
         });
-      });
-    });
+      }
+    );
 
-    test('Dispatches import-process-file for other types', () => {
+    it('Dispatches import-process-file for other types', () => {
       element.addEventListener('import-process-file', importHandler);
-      files = [new Blob(['{}'], {type: acceptedType})];
+      files = [new Blob(['{}'], { type: acceptedType })];
       const spy = sinon.spy(element, '_fire');
-      return element._processEntries(files)
-      .then(() => {
+      return element._processEntries(files).then(() => {
         element.removeEventListener('import-process-file', importHandler);
         assert.isTrue(spy.called);
         assert.equal(spy.args[0][0], 'import-process-file');
@@ -265,69 +256,71 @@
       });
     });
 
-    test('Rejects when import-process-file not handled', () => {
-      files = [new Blob(['{}'], {type: acceptedType})];
-      return element._processEntries(files)
-      .then(() => {
-        throw new Error('Should not resolve');
-      })
-      .catch((cause) => {
-        assert.equal(cause.message, 'Import intent not handled by the application');
-      });
+    it('Rejects when import-process-file not handled', () => {
+      files = [new Blob(['{}'], { type: acceptedType })];
+      return element
+        ._processEntries(files)
+        .then(() => {
+          throw new Error('Should not resolve');
+        })
+        .catch((cause) => {
+          assert.equal(cause.message, 'Import intent not handled by the application');
+        });
     });
 
-    test('Dispatches process-error when import-process-file not handled', () => {
-      files = [new Blob(['{}'], {type: acceptedType})];
+    it('Dispatches process-error when import-process-file not handled', () => {
+      files = [new Blob(['{}'], { type: acceptedType })];
       const spy = sinon.spy(element, '_fire');
-      return element._processEntries(files)
-      .then(() => {
-        throw new Error('Should not resolve');
-      })
-      .catch(() => {
-        assert.isTrue(spy.called);
-        assert.equal(spy.args[1][0], 'process-error');
-        assert.equal(spy.args[1][1].message, 'Import intent not handled by the application');
-      });
+      return element
+        ._processEntries(files)
+        .then(() => {
+          throw new Error('Should not resolve');
+        })
+        .catch(() => {
+          assert.isTrue(spy.called);
+          assert.equal(spy.args[1][0], 'process-error');
+          assert.equal(spy.args[1][1].message, 'Import intent not handled by the application');
+        });
     });
 
-    test('Dispatches process-error when result is error', () => {
-      files = [new Blob(['{}'], {type: acceptedType})];
+    it('Dispatches process-error when result is error', () => {
+      files = [new Blob(['{}'], { type: acceptedType })];
       const spy = sinon.spy(element, '_fire');
       element.addEventListener('import-process-file', function f(e) {
         element.removeEventListener('import-process-file', f);
         e.preventDefault();
         e.detail.result = Promise.reject(new Error('test-error'));
       });
-      return element._processEntries(files)
-      .then(() => {
-        throw new Error('Should not resolve');
-      })
-      .catch(() => {
-        assert.isTrue(spy.called);
-        assert.equal(spy.args[1][0], 'process-error');
-        assert.equal(spy.args[1][1].message, 'test-error');
-      });
+      return element
+        ._processEntries(files)
+        .then(() => {
+          throw new Error('Should not resolve');
+        })
+        .catch(() => {
+          assert.isTrue(spy.called);
+          assert.equal(spy.args[1][0], 'process-error');
+          assert.equal(spy.args[1][1].message, 'test-error');
+        });
     });
 
-    test('Dispatches process-error when result is error (as string)', () => {
-      files = [new Blob(['{}'], {type: acceptedType})];
+    it('Dispatches process-error when result is error (as string)', () => {
+      files = [new Blob(['{}'], { type: acceptedType })];
       const spy = sinon.spy(element, '_fire');
       element.addEventListener('import-process-file', function f(e) {
         element.removeEventListener('import-process-file', f);
         e.preventDefault();
-        e.detail.result = Promise.reject('test-error');
+        e.detail.result = Promise.reject(new Error('test-error'));
       });
-      return element._processEntries(files)
-      .then(() => {
-        throw new Error('Should not resolve');
-      })
-      .catch(() => {
-        assert.isTrue(spy.called);
-        assert.equal(spy.args[1][0], 'process-error');
-        assert.equal(spy.args[1][1].message, 'test-error');
-      });
+      return element
+        ._processEntries(files)
+        .then(() => {
+          throw new Error('Should not resolve');
+        })
+        .catch(() => {
+          assert.isTrue(spy.called);
+          assert.equal(spy.args[1][0], 'process-error');
+          assert.equal(spy.args[1][1].message, 'test-error');
+        });
     });
   });
-  </script>
-</body>
-</html>
+});

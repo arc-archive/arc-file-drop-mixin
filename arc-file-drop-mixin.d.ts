@@ -5,67 +5,10 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   arc-file-drop-mixin.html
+ *   arc-file-drop-mixin.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
-// tslint:disable:no-any describes the API as best we are able today
 
-/// <reference path="../polymer/types/lib/utils/mixin.d.ts" />
-
-declare namespace ArcComponents {
-
-
-  /**
-   * A mixin with common function used to drag and drop file import.
-   *
-   * Contains methods to enable UI to react on drop events.
-   */
-  function ArcFileDropMixin<T extends new (...args: any[]) => {}>(base: T): T & ArcFileDropMixinConstructor;
-
-  interface ArcFileDropMixinConstructor {
-    new(...args: any[]): ArcFileDropMixin;
-  }
-
-  interface ArcFileDropMixin {
-
-    /**
-     * True when file is dragged over the element.
-     */
-    readonly dragging: boolean|null|undefined;
-    connectedCallback(): void;
-    _onDragEnter(e: any): void;
-    _onDragLeave(e: any): void;
-    _onDragOver(e: any): void;
-    _onDrop(e: any): void;
-    _cancelEvent(e: any): void;
-
-    /**
-     * Dispatches `api-process-file` if the file is of a type of
-     * `application/zip` or `application/yaml`. Dispatches `import-process-file`
-     * event in other cases.
-     *
-     * When handling json file it reads the file and checks if file is
-     * OAS/swagger file.
-     *
-     * @param files Dropped files list
-     */
-    _processEntries(files: FileList|null): Promise<any>|null;
-
-    /**
-     * Dispatches `api-process-file` to parse API data.
-     *
-     * @param file User file.
-     */
-    _notifyApiParser(file: File|null): Promise<any>|null;
-
-    /**
-     * Dispatches custom event and returns it.
-     *
-     * @param type Event type
-     * @param detail Event detail object
-     */
-    _fire(type: String|null, detail: object|null): CustomEvent|null;
-  }
-}
+export {ArcFileDropMixin};
