@@ -6,11 +6,7 @@
 
 ## &lt;arc-file-drop-mixin&gt;
 
-A mixin with common function used to drag and drop file import.
-
-### API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
+A mixin with common function used to drag and drop file import in Advanced REST Client.
 
 ## Usage
 
@@ -19,14 +15,14 @@ This components is a part of [API components ecosystem](https://elements.advance
 npm install --save @advanced-rest-client/arc-file-drop-mixin
 ```
 
-### In a Polymer 3 element
+### In a LitElement
 
 ```js
-import {PolymerElement, html} from '@polymer/polymer';
-import {ArcFileDropMixin} from '@advanced-rest-client/arc-file-drop-mixin/arc-file-drop-mixin.js';
+import { LitElement, html } from 'lit-element';
+import { ArcFileDropMixin } from '@advanced-rest-client/arc-file-drop-mixin/arc-file-drop-mixin.js';
 
-class SampleElement extends ArcFileDropMixin(PolymerElement) {
-  static get template() {
+class SampleElement extends ArcFileDropMixin(LitElement) {
+  render() {
     return html`
     <h1>Drop file here</h1>
     `;
@@ -35,16 +31,20 @@ class SampleElement extends ArcFileDropMixin(PolymerElement) {
 customElements.define('sample-element', SampleElement);
 ```
 
-### Installation
+## Development
 
 ```sh
 git clone https://github.com/advanced-rest-client/arc-file-drop-mixin
-cd api-url-editor
+cd arc-file-drop-mixin
 npm install
-npm install -g polymer-cli
 ```
 
 ### Running the tests
+
 ```sh
-polymer test --npm
+npm test
 ```
+
+## API components
+
+This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
