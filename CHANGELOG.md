@@ -55,3 +55,12 @@
 
 
 
+## 3.0.1 (2019-09-28)
+
+
+### Bug Fixes
+
+* fixing dragging attribute setup ([5569217](https://github.com/advanced-rest-client/arc-file-drop-mixin/commit/5569217))
+
+
+
