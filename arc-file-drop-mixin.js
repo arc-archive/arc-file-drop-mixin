@@ -45,7 +45,7 @@ export const ArcFileDropMixin = (base) => class extends base {
       /**
        * True when file is dragged over the element.
        */
-      _dragging: { type: Boolean, reflect: true }
+      _dragging: { type: Boolean, reflect: true, attribute: 'dragging' }
     };
   }
 

@@ -1,4 +1,4 @@
-import { fixture, assert, html } from '@open-wc/testing';
+import { fixture, assert, html, nextFrame } from '@open-wc/testing';
 import * as sinon from 'sinon/pkg/sinon-esm.js';
 import './test-element.js';
 
@@ -38,6 +38,13 @@ describe('ArcFileDropMixin', function() {
       const e = createEventObject(file);
       element._onDragEnter(e);
       assert.isTrue(element.dragging);
+    });
+
+    it('Sets dragging attribute', async () => {
+      const e = createEventObject(file);
+      element._onDragEnter(e);
+      await nextFrame();
+      assert.isTrue(element.hasAttribute('dragging'));
     });
 
     it("Won't set dragging when no files", () => {
